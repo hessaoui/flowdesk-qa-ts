@@ -1,0 +1,25 @@
+{
+  "type": "module",
+  "name": "flowdesk-qa-ts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:junit": "vitest run --reporter=default --reporter=junit --outputFile=reports/junit.xml"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^25.0.10",
+    "@typescript-eslint/eslint-plugin": "^8.53.1",
+    "@typescript-eslint/parser": "^8.53.1",
+    "@vitest/coverage-v8": "^4.0.18",
+    "eslint": "^9.39.2",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
+  }
+}
