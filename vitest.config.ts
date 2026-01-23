@@ -1,6 +1,7 @@
 import { defineConfig } from "vitest/config";
 
 const getConfig = () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const testConfig: any = {
     environment: "node",
     reporters: process.env.CI ? ["default", "junit"] : ["default"],
