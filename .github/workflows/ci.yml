@@ -84,20 +84,41 @@ jobs:
       - name: Wait for Postgres
         run: |
           for i in {1..30}; do
-            pg_isready -h localhost -p 5432 -U app -d app_test && exit 0
+            node -e '
+              const { Pool } = require("pg");
+              const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+              pool.query("SELECT 1").then(() => {
+                pool.end();
+                process.exit(0);
+              }).catch(() => {
+                pool.end();
+                process.exit(1);
+              });
+            ' && exit 0
             sleep 2
           done
           echo "Postgres not ready after 60s" && exit 1
         env:
-          PGPASSWORD: app
+          DATABASE_URL: postgres://app:app@localhost:5432/app_test
 
       - name: Wait for Redis
         run: |
           for i in {1..30}; do
-            redis-cli -h localhost -p 6379 ping | grep -q PONG && exit 0
+            node -e '
+              const { createClient } = require("redis");
+              const client = createClient({ url: process.env.REDIS_URL });
+              client.on("error", () => process.exit(1));
+              client.connect()
+                .then(() => client.ping())
+                .then(() => client.quit())
+                .then(() => process.exit(0))
+                .catch(() => process.exit(1));
+            ' && exit 0
             sleep 2
           done
           echo "Redis not ready after 60s" && exit 1
+        env:
+          REDIS_URL: redis://localhost:6379
 
       - name: Start Mock Engine
         run: npm run engine:start &

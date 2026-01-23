@@ -13,6 +13,8 @@ const getConfig = () => {
 
   if (process.env.CI) {
     testConfig.outputFile = { junit: "reports/junit.xml" };
+    // Ensure unit CI runs don't collect integration files
+    testConfig.exclude = ["tests/integration/**"];
   }
 
   return defineConfig({

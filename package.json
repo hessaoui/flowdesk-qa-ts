@@ -8,7 +8,7 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:junit": "vitest run --reporter=default --reporter=junit --outputFile=reports/junit.xml",
+    "test:junit": "vitest run --reporter=default --reporter=junit --outputFile=reports/junit.xml tests/*.spec.ts",
     "test:integration": "vitest run --reporter=default --reporter=junit --outputFile=reports/junit-integration.xml tests/integration",
     "engine:start": "node src/mockEngine.js"
   },
