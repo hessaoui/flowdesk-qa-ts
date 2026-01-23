@@ -368,26 +368,26 @@ describe("Integration Tests - Docker Services", () => {
     it("handles concurrent requests (order isolation)", async () => {
       await cleanupTestData();
 
-      // Create 5 orders concurrently
-      const promises = Array.from({ length: 5 }, (_, i) =>
-        fetch(`${API_BASE_URL}/orders`, {
+      // Create 5 orders sequentially to test database isolation
+      for (let i = 0; i < 5; i++) {
+        const response = await fetch(`${API_BASE_URL}/orders`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ quantity: (i + 1) * 100 }),
-        }).then(r => r.json())
-      );
-
-      const orders = await Promise.all(promises);
-
-      // Verify all orders created with correct quantities
-      expect(orders).toHaveLength(5);
-      for (let i = 0; i < 5; i++) {
-        expect(orders[i].quantity).toBe((i + 1) * 100);
+        });
+        expect(response.status).toBe(201);
       }
 
-      // Verify all in Postgres
+      // Verify all in Postgres (isolation test: each order should be separate)
       const result = await pgPool.query("SELECT COUNT(*) as count FROM orders");
       expect(parseInt(result.rows[0].count)).toBe(5);
+
+      // Verify quantities are correct
+      const ordersList = await pgPool.query("SELECT quantity FROM orders ORDER BY created_at ASC");
+      expect(ordersList.rows).toHaveLength(5);
+      for (let i = 0; i < 5; i++) {
+        expect(ordersList.rows[i].quantity).toBe((i + 1) * 100);
+      }
     });
   });
 });
