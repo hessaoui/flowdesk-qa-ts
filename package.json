@@ -8,7 +8,9 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:junit": "vitest run --reporter=default --reporter=junit --outputFile=reports/junit.xml"
+    "test:junit": "vitest run --reporter=default --reporter=junit --outputFile=reports/junit.xml",
+    "test:integration": "vitest run --reporter=default --reporter=junit --outputFile=reports/junit-integration.xml tests/integration",
+    "engine:start": "node src/mockEngine.js"
   },
   "keywords": [],
   "author": "",
@@ -25,5 +27,9 @@
     "typescript": "^5.9.3",
     "vitest": "^4.0.18",
     "ws": "^8.19.0"
+  },
+  "dependencies": {
+    "pg": "^8.11.3",
+    "redis": "^4.6.12"
   }
 }

@@ -6,7 +6,8 @@ on:
     branches: [ "main" ]
 
 jobs:
-  test:
+  # Unit tests without external dependencies
+  unit-tests:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,14 +26,122 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Run tests (JUnit)
+      - name: Run unit tests (JUnit)
         run: |
           mkdir -p reports
           npm run test:junit
 
-      - name: Upload test report (artifact)
+      - name: Upload test report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: junit-report
           path: reports/junit.xml
+
+  # Integration tests with Docker services (Postgres, Redis, Engine)
+  integration-tests:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: app
+          POSTGRES_DB: app_test
+        options: >-
+          --health-cmd="pg_isready -U app -d app_test"
+          --health-interval=5s
+          --health-timeout=3s
+          --health-retries=20
+        ports:
+          - 5432:5432
+
+      redis:
+        image: redis:7
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=5s
+          --health-timeout=3s
+          --health-retries=20
+        ports:
+          - 6379:6379
+
+      engine:
+        image: node:22-alpine
+        options: >-
+          --health-cmd="node -e \"require('http').get('http://localhost:8080/health', r => process.exit(r.statusCode === 200 ? 0 : 1))\""
+          --health-interval=5s
+          --health-timeout=3s
+          --health-retries=30
+        ports:
+          - 8080:8080
+          - 8081:8081
+        env:
+          DATABASE_URL: postgres://app:app@postgres:5432/app_test
+          REDIS_URL: redis://redis:6379
+          NODE_ENV: test
+        volumes:
+          - ${{ github.workspace }}:/app
+        working_dir: /app
+        entrypoint: sh
+        args:
+          - -c
+          - |
+            npm ci --silent &&
+            node src/mockEngine.js
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install
+        run: npm ci
+
+      # Defensive wait loops to ensure services are truly ready
+      - name: Wait for Postgres
+        run: |
+          for i in {1..30}; do
+            pg_isready -h localhost -p 5432 -U app -d app_test && exit 0
+            sleep 2
+          done
+          echo "Postgres not ready after 60s" && exit 1
+        env:
+          PGPASSWORD: app
+
+      - name: Wait for Redis
+        run: |
+          for i in {1..30}; do
+            redis-cli -h localhost -p 6379 ping | grep -q PONG && exit 0
+            sleep 2
+          done
+          echo "Redis not ready after 60s" && exit 1
+
+      - name: Wait for Engine
+        run: |
+          for i in {1..40}; do
+            curl -fsS http://localhost:8080/health && exit 0
+            sleep 2
+          done
+          echo "Engine not ready after 80s" && exit 1
+
+      - name: Run integration tests
+        env:
+          DATABASE_URL: postgres://app:app@localhost:5432/app_test
+          REDIS_URL: redis://localhost:6379
+          API_BASE_URL: http://localhost:8080
+          WS_URL: ws://localhost:8081
+        run: npm run test:integration
+
+      - name: Upload integration test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-report
+          path: reports/junit-integration.xml
