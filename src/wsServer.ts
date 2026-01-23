@@ -32,7 +32,7 @@ export function startWsServer(port = 0) {
    * Get the actual port the server is listening on.
    * Useful when using port 0 (auto-assign) for testing.
    */
-  function port(): number {
+  function getPort(): number {
     const addr = wss.address();
     if (typeof addr === "object" && addr) return addr.port;
     throw new Error("Cannot get server port");
@@ -49,7 +49,7 @@ export function startWsServer(port = 0) {
 
   return {
     wss,
-    port,
+    getPort,
     broadcast,
     close,
   };

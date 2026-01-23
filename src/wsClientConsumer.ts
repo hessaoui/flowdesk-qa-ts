@@ -36,7 +36,7 @@ export function connectAndConsume(url: string, engine: TradingEngine) {
           // console.warn(`Event ${evt.eventId} rejected: ${result.reason}`);
         }
       }
-    } catch (error) {
+    } catch {
       // In production: log to monitoring system, increment error metric
       // For this demo, silently ignore malformed messages
     }

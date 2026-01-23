@@ -30,7 +30,7 @@ describe("WebSocket executions - idempotency & invariants", () => {
   
   it("ignores duplicate execution events (same eventId)", async () => {
     const server = startWsServer(0);
-    const url = `ws://127.0.0.1:${server.port()}`;
+    const url = `ws://127.0.0.1:${server.getPort()}`;
 
     const order: Order = { id: "O1", quantity: 10, filledQuantity: 0, status: "OPEN" };
     const account: Account = { balance: 100 };
@@ -62,7 +62,7 @@ describe("WebSocket executions - idempotency & invariants", () => {
 
   it("caps overfill and reaches FILLED without exceeding quantity", async () => {
     const server = startWsServer(0);
-    const url = `ws://127.0.0.1:${server.port()}`;
+    const url = `ws://127.0.0.1:${server.getPort()}`;
 
     const order: Order = { id: "O2", quantity: 10, filledQuantity: 9, status: "PARTIALLY_FILLED" };
     const account: Account = { balance: 100 };
@@ -90,7 +90,7 @@ describe("WebSocket executions - idempotency & invariants", () => {
 
   it("rejects executions after order is FILLED", async () => {
     const server = startWsServer(0);
-    const url = `ws://127.0.0.1:${server.port()}`;
+    const url = `ws://127.0.0.1:${server.getPort()}`;
 
     const order: Order = { id: "O3", quantity: 10, filledQuantity: 10, status: "FILLED" };
     const account: Account = { balance: 100 };
@@ -115,7 +115,7 @@ describe("WebSocket executions - idempotency & invariants", () => {
 
   it("handles multiple distinct executions correctly", async () => {
     const server = startWsServer(0);
-    const url = `ws://127.0.0.1:${server.port()}`;
+    const url = `ws://127.0.0.1:${server.getPort()}`;
 
     const order: Order = { id: "O4", quantity: 10, filledQuantity: 0, status: "OPEN" };
     const account: Account = { balance: 100 };
@@ -144,7 +144,7 @@ describe("WebSocket executions - idempotency & invariants", () => {
 
   it("rejects executions for wrong orderId", async () => {
     const server = startWsServer(0);
-    const url = `ws://127.0.0.1:${server.port()}`;
+    const url = `ws://127.0.0.1:${server.getPort()}`;
 
     const order: Order = { id: "O5", quantity: 10, filledQuantity: 0, status: "OPEN" };
     const account: Account = { balance: 100 };
@@ -170,7 +170,7 @@ describe("WebSocket executions - idempotency & invariants", () => {
 
   it("rejects executions with invalid (non-positive) quantity", async () => {
     const server = startWsServer(0);
-    const url = `ws://127.0.0.1:${server.port()}`;
+    const url = `ws://127.0.0.1:${server.getPort()}`;
 
     const order: Order = { id: "O6", quantity: 10, filledQuantity: 0, status: "OPEN" };
     const account: Account = { balance: 100 };
@@ -199,7 +199,7 @@ describe("WebSocket executions - idempotency & invariants", () => {
 
   it("transitions through OPEN -> PARTIALLY_FILLED -> FILLED correctly", async () => {
     const server = startWsServer(0);
-    const url = `ws://127.0.0.1:${server.port()}`;
+    const url = `ws://127.0.0.1:${server.getPort()}`;
 
     const order: Order = { id: "O7", quantity: 10, filledQuantity: 0, status: "OPEN" };
     const account: Account = { balance: 100 };
