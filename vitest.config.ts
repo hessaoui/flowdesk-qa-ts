@@ -8,7 +8,8 @@ const getConfig = () => {
     coverage: {
       provider: "v8",
       reporter: ["text", "lcov"]
-    }
+    },
+    exclude: ["**/e2e.spec.ts", "node_modules", "dist"]
   };
 
   if (process.env.CI) {

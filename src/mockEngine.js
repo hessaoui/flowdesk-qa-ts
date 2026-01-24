@@ -13,7 +13,6 @@
  * - env vars (DATABASE_URL, REDIS_URL) show 12-factor app config
  * - Separate ports: HTTP (8080) vs WebSocket (8081)
  */
-/* eslint-disable no-undef */
 
 import http from "node:http";
 import { WebSocketServer } from "ws";
@@ -43,12 +42,10 @@ async function initPostgres() {
       const client = await pool.connect();
       await client.query("SELECT NOW()");
       client.release();
-      // eslint-disable-next-line no-console
       console.log("✓ PostgreSQL connected");
       return pool;
     } catch {
       attempts++;
-      // eslint-disable-next-line no-console
       console.log(`PostgreSQL connection attempt ${attempts}/10 failed, retrying...`);
       await new Promise(r => setTimeout(r, 1000));
     }
@@ -65,15 +62,12 @@ async function initRedis() {
   let attempts = 0;
   while (attempts < 10) {
     try {
-      // eslint-disable-next-line no-console
       client.on("error", () => {}); // Suppress errors during initial connect
       await client.connect();
-      // eslint-disable-next-line no-console
       console.log("✓ Redis connected");
       return client;
     } catch {
       attempts++;
-      // eslint-disable-next-line no-console
       console.log(`Redis connection attempt ${attempts}/10 failed, retrying...`);
       await new Promise(r => setTimeout(r, 1000));
     }

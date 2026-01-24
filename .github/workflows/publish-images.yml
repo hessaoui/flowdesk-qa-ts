@@ -1,0 +1,32 @@
+name: Publish Images
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & push engine
+        run: |
+          docker build -t ghcr.io/${{ github.repository_owner }}/mock-engine:latest ./engine
+          docker push ghcr.io/${{ github.repository_owner }}/mock-engine:latest
+
+      - name: Build & push web
+        run: |
+          docker build -t ghcr.io/${{ github.repository_owner }}/mock-web:latest ./web
+          docker push ghcr.io/${{ github.repository_owner }}/mock-web:latest

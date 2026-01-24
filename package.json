@@ -1,15 +1,17 @@
 {
   "type": "module",
-  "name": "flowdesk-qa-ts",
+  "name": "flowdesk-qa-demo",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Flowdesk QA Demo with Playwright, Docker services, and JUnit output",
+  "private": true,
   "scripts": {
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:junit": "vitest run --reporter=default --reporter=junit --outputFile=reports/junit.xml tests/*.spec.ts",
     "test:integration": "vitest run --reporter=default --reporter=junit --outputFile=reports/junit-integration.xml tests/integration",
+    "test:e2e": "playwright test",
+    "test:e2e:junit": "playwright test --reporter=junit,line",
     "engine:start": "node src/mockEngine.js"
   },
   "keywords": [],
@@ -17,6 +19,7 @@
   "license": "ISC",
   "devDependencies": {
     "@eslint/js": "^9.39.2",
+    "@playwright/test": "^1.49.0",
     "@types/node": "^25.0.10",
     "@types/pg": "^8.16.0",
     "@types/ws": "^8.18.1",

@@ -1,0 +1,11 @@
+{
+  "name": "mock-engine",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

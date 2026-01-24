@@ -1,0 +1,8 @@
+{
+  "name": "mock-web",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  }
+}
