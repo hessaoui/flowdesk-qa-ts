@@ -157,6 +157,14 @@ jobs:
           SQUASH_ENDPOINT: ${{ secrets.SQUASH_ENDPOINT }}
           SQUASH_TOKEN: ${{ secrets.SQUASH_TOKEN }}
 
+      - name: Publish to Squash (optional)
+        if: always() && github.ref == 'refs/heads/main'
+        run: npm run publish:squash -- reports/junit-integration.xml
+        env:
+          SQUASH_BASE_URL: ${{ secrets.SQUASH_BASE_URL }}
+          SQUASH_TOKEN: ${{ secrets.SQUASH_TOKEN }}
+          SQUASH_ITERATION_ID: ${{ secrets.SQUASH_ITERATION_ID }}
+
   # E2E tests with UI + API (Playwright)
   # Disabled: Requires published Docker images and web UI (not part of QA interview focus)
   # To enable: Publish images to GHCR first using publish-images.yml workflow

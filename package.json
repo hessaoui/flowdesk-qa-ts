@@ -13,6 +13,7 @@
     "test:e2e": "playwright test",
     "test:e2e:junit": "playwright test --reporter=junit,line",
     "publish:results": "node scripts/publish-results.js",
+    "publish:squash": "node scripts/publish-to-squash.mjs",
     "engine:start": "node src/mockEngine.js"
   },
   "keywords": [],
@@ -28,6 +29,7 @@
     "@typescript-eslint/parser": "^8.53.1",
     "@vitest/coverage-v8": "^4.0.18",
     "eslint": "^9.39.2",
+    "fast-xml-parser": "^4.5.0",
     "globals": "^17.1.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18"
