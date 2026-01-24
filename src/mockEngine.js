@@ -145,8 +145,8 @@ function createHttpServer() {
       req.on("data", chunk => { body += chunk; });
       req.on("end", async () => {
         try {
-          const { orderId, quantity } = JSON.parse(body);
-          const eventId = `EXE-${Date.now()}`;
+          const { orderId, quantity, eventId: clientEventId } = JSON.parse(body);
+          const eventId = clientEventId || `EXE-${Date.now()}`;
 
           // Check idempotency cache in Redis
           const cacheKey = `execution:${eventId}`;

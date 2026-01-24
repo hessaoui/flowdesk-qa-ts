@@ -12,6 +12,7 @@
     "test:integration": "vitest run --reporter=default --reporter=junit --outputFile=reports/junit-integration.xml tests/integration",
     "test:e2e": "playwright test",
     "test:e2e:junit": "playwright test --reporter=junit,line",
+    "publish:results": "node scripts/publish-results.js",
     "engine:start": "node src/mockEngine.js"
   },
   "keywords": [],

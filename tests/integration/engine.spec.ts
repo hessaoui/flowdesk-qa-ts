@@ -233,6 +233,68 @@ describeMaybe("Integration Tests - Docker Services", () => {
       expect(result.rows[0].filled_quantity).toBe(60); // 30 + 30, not 30
     });
 
+    it("ensures idempotency - same eventId rejected on retry (consumer-side dedup)", async () => {
+      await cleanupTestData();
+      await redisClient.flushDb();
+
+      // Create order
+      const createResponse = await fetch(`${API_BASE_URL}/orders`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ quantity: 100 }),
+      });
+      const order = await createResponse.json();
+      const orderId = order.orderId;
+      
+      // Simulate client-side event deduplication:
+      // Client generates eventId and sends it with execution
+      const eventId = `E-${Date.now()}-${Math.random()}`;
+
+      // First execution with eventId (should succeed)
+      const execResponse1 = await fetch(`${API_BASE_URL}/execute`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          orderId, 
+          quantity: 50,
+          eventId  // Client sends eventId for idempotency
+        }),
+      });
+      const exec1 = await execResponse1.json();
+      expect(execResponse1.status).toBe(200);
+      expect(exec1.applied).toBe(true);
+      expect(exec1.eventId).toBe(eventId);
+
+      // Second execution with SAME eventId (network retry scenario)
+      // Should be rejected as duplicate
+      const execResponse2 = await fetch(`${API_BASE_URL}/execute`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          orderId, 
+          quantity: 50,  // Even with same quantity
+          eventId        // Same eventId = rejected
+        }),
+      });
+      const exec2 = await execResponse2.json();
+      expect(execResponse2.status).toBe(200);
+      expect(exec2.applied).toBe(false);  // ← Key assertion: duplicate rejected
+      expect(exec2.reason).toBe("duplicate");
+
+      // Verify order was ONLY filled by first execution (not both)
+      const result = await pgPool.query(
+        "SELECT filled_quantity, status FROM orders WHERE id = $1",
+        [orderId]
+      );
+      expect(result.rows[0].filled_quantity).toBe(50);  // Only first execution applied
+      expect(result.rows[0].status).toBe("PARTIALLY_FILLED");
+
+      // Verify eventId is cached in Redis (idempotency cache)
+      const cached = await redisClient.get(`execution:${eventId}`);
+      expect(cached).toBe("1");
+      console.log("✓ Idempotency verified: duplicate events rejected via Redis cache");
+    });
+
     it("uses Redis for caching (TTL = 1 hour)", async () => {
       await cleanupTestData();
       await redisClient.flushDb();
