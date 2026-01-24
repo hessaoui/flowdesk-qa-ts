@@ -1,9 +1,7 @@
 import { test, expect } from "@playwright/test";
-import WebSocket from "ws";
 import { ExecutionConsumer } from "./helpers/executionConsumer";
 
 const ENGINE_URL = process.env.ENGINE_URL || "http://localhost:8080";
-const WS_URL = process.env.WS_URL || "ws://localhost:8081";
 
 test("[TC_HEALTH_001] API: engine health is OK", async ({ request }) => {
   const r = await request.get(`${ENGINE_URL}/health`);

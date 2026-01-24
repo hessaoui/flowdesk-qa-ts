@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+/* eslint-disable no-undef */
+
 /**
  * Publish test results to Squash via API
  * 

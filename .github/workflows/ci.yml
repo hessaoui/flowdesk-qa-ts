@@ -157,8 +157,9 @@ jobs:
           SQUASH_ENDPOINT: ${{ secrets.SQUASH_ENDPOINT }}
           SQUASH_TOKEN: ${{ secrets.SQUASH_TOKEN }}
 
-      - name: Publish to Squash (optional)
+      - name: Publish to Squash (optional - skips if secrets not configured)
         if: always() && github.ref == 'refs/heads/main'
+        continue-on-error: true
         run: npm run publish:squash -- reports/junit-integration.xml
         env:
           SQUASH_BASE_URL: ${{ secrets.SQUASH_BASE_URL }}
