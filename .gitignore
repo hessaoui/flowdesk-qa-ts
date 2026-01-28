@@ -38,7 +38,3 @@ yarn-error.log*
 # Coverage
 coverage/
 .nyc_output/
-
-#README.md
-README.md
-E2E_README.md
